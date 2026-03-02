@@ -157,7 +157,7 @@ internal static class DynamicFieldRenderer
         builder.AddAttribute(seq + 9, "Required", field.Required);
         if (field.Placeholder is not null)
         {
-            builder.AddAttribute(seq + 8, "Placeholder", field.Placeholder);
+            builder.AddAttribute(seq + 10, "Placeholder", field.Placeholder);
         }
 
         builder.CloseComponent();
@@ -295,7 +295,7 @@ internal static class DynamicFieldRenderer
         AddCommonFormFieldAttributes(builder, seq + 4, field, errorText, disabled, layout);
         if (field.Placeholder is not null)
         {
-            builder.AddAttribute(seq + 8, "Placeholder", field.Placeholder);
+            builder.AddAttribute(seq + 9, "Placeholder", field.Placeholder);
         }
 
         builder.CloseComponent();
@@ -319,7 +319,7 @@ internal static class DynamicFieldRenderer
         AddCommonFormFieldAttributes(builder, seq + 4, field, errorText, disabled, layout);
         if (field.Placeholder is not null)
         {
-            builder.AddAttribute(seq + 8, "Placeholder", field.Placeholder);
+            builder.AddAttribute(seq + 9, "Placeholder", field.Placeholder);
         }
 
         builder.CloseComponent();
@@ -343,7 +343,7 @@ internal static class DynamicFieldRenderer
         AddCommonFormFieldAttributes(builder, seq + 4, field, errorText, disabled, layout);
         if (field.Placeholder is not null)
         {
-            builder.AddAttribute(seq + 8, "Placeholder", field.Placeholder);
+            builder.AddAttribute(seq + 9, "Placeholder", field.Placeholder);
         }
 
         builder.CloseComponent();

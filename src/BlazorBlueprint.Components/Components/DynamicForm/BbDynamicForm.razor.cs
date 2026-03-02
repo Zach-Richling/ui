@@ -276,6 +276,9 @@ public partial class BbDynamicForm : ComponentBase
         // Clear values and errors for fields that are now hidden
         ClearHiddenFieldValues();
 
+        // Re-apply defaults for fields that may have become visible again
+        ApplyDefaultValues();
+
         await ValuesChanged.InvokeAsync(Values);
 
         if (OnFieldChanged.HasDelegate)
@@ -330,7 +333,7 @@ public partial class BbDynamicForm : ComponentBase
     {
         fieldErrors.Clear();
 
-        var fieldsToValidate = Schema?.Sections.Count > 0
+        var fieldsToValidate = Schema is not null && Schema.Sections.Count > 0
             ? Schema.Sections
                 .Where(s => IsSectionVisible(s))
                 .SelectMany(s => s.Fields)
@@ -613,6 +616,7 @@ public partial class BbDynamicForm : ComponentBase
 
             var colSpanStyle = GetColSpanStyle(field, columns);
             builder.OpenElement(seq, "div");
+            builder.SetKey(field.Name);
             if (Layout == FormLayout.Inline)
             {
                 builder.AddAttribute(seq + 1, "class", "flex-1 min-w-32");

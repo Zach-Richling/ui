@@ -335,7 +335,7 @@ public static class FormSchemaParser
         }
 
         // Apply x-field-type override if specified
-        if (xFieldType is not null && field.Options is not null)
+        if (xFieldType is not null)
         {
             if (Enum.TryParse<FieldType>(xFieldType, ignoreCase: true, out var overrideType))
             {
