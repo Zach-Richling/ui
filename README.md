@@ -22,6 +22,21 @@ Beautiful UI components for Blazor, built with accessibility in mind. Inspired b
   <strong>100+ Components</strong> · <strong>11 Chart Types</strong> · <strong>3,200+ Icons</strong>
 </p>
 
+## Table of Contents
+
+- [Why Blazor Blueprint?](#why-blazor-blueprint)
+- [AI Integration](#ai-integration)
+- [Getting Started](#getting-started)
+- [Components](#components)
+- [Primitives](#primitives)
+- [Icons](#icons)
+- [Theming](#theming)
+- [Architecture](#architecture)
+- [Demo Applications](#demo-applications)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
 ## Why Blazor Blueprint?
 
 Blazor developers lack a modern, design-system-first UI library equivalent to what React developers have with shadcn/ui. Blazor Blueprint fills that gap — pre-built components and headless primitives that integrate directly with Tailwind and shadcn themes, targeting .NET 8 across Server, WebAssembly, and Auto render modes.
@@ -31,6 +46,20 @@ Blazor developers lack a modern, design-system-first UI library equivalent to wh
 - **Built with Accessibility in Mind** — Includes ARIA attributes, keyboard support, and semantic HTML structure.
 - **Dark Mode Built-in** — Light and dark themes with CSS variables, ready out of the box.
 - **Two-Layer Architecture** — Use pre-styled components for speed, or headless primitives for full control.
+
+## AI Integration
+
+Blazor Blueprint ships with a built-in MCP server and llms.txt — so Claude, Cursor, Copilot, and Windsurf generate correct component code on the first try.
+
+- **MCP Server** — 11 tools give your AI structured access to every component, pattern, and API.
+- **llms.txt** — 100+ machine-optimized docs so any LLM can understand the library without hallucinating.
+- **Works Everywhere** — Claude Code, Cursor, GitHub Copilot, Windsurf — any MCP-compatible AI tool.
+
+```bash
+npx blazorblueprint add mcp-server
+```
+
+Learn more at [blazorblueprintui.com](https://blazorblueprintui.com).
 
 ## Getting Started
 
