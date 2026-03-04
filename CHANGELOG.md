@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## 2026-03-04
+
+### Added
+
+- **BbDataGrid: Per-Column Filtering** — Filter icon on column headers opens a popover with operator dropdown and type-aware value inputs (text, number, date range, enum multi-select, boolean). Auto-infers filter type from `PropertyColumn<TProp>`; `TemplateColumn` supports explicit `FilterBy`/`FilterType`. Works with `IQueryable`, `IEnumerable`, and `ItemsProvider` data sources.
+- **BbDataGrid: Row Click & Context Menu** — `OnRowClick` callback and `RowContextMenu` render fragment. Capture-phase click interceptor prevents interactive elements (buttons, links, inputs) inside cells from triggering row click/selection.
+- **BbDataGrid: ItemKey** — `ItemKey` parameter for stable row identity tracking.
+- **BbFilterBuilder: Customizable Button Text** — `ApplyButtonText` and `ClearButtonText` parameters for localizable filter builder buttons.
+
+---
+
 ## 2026-03-02
 
 ### Added
