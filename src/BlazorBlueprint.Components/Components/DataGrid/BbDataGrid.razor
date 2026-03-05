@@ -26,7 +26,7 @@
                     </div>
                 }
             }
-            else if ((_groupedRenderItems == null || !_groupedRenderItems.Any()) && !_processedData.Any())
+            else if ((_groupedRenderItems == null || !_groupedRenderItems.Any()) && !_processedData.Any() && !_gridState.Filtering.HasFilters)
             {
                 @if (EmptyTemplate != null)
                 {
@@ -219,7 +219,15 @@
                         </BlazorBlueprint.Primitives.DataGrid.BbDataGridRow>
                     </BlazorBlueprint.Primitives.DataGrid.BbDataGridHeader>
                     <BlazorBlueprint.Primitives.DataGrid.BbDataGridBody Class="bg-background">
-                        @if (_groupedRenderItems != null)
+                        @if (!_processedData.Any() && _gridState.Filtering.HasFilters)
+                        {
+                            <tr>
+                                <td colspan="@_cachedVisibleColumns.Count" class="py-8 text-center">
+                                    <BbEmpty Title="No results found" Description="Try adjusting or clearing your filters." Size="EmptySize.Small" />
+                                </td>
+                            </tr>
+                        }
+                        else if (_groupedRenderItems != null)
                         {
                             @foreach (var renderItem in _groupedRenderItems)
                             {

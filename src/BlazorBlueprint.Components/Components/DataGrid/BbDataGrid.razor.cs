@@ -367,41 +367,22 @@ public partial class BbDataGrid<TData> : ComponentBase, IAsyncDisposable where T
         }
 
         // Apply GroupBy parameter (GroupColumn takes precedence if both are set)
-        if (GroupBy != null && (_groupByAccessor == null || !ReferenceEquals(GroupBy, _lastGroupBy)))
+        if (GroupBy != null && _groupByAccessor == null)
         {
-            var compiled = GroupBy.Compile();
-            _groupByAccessor = item => compiled(item);
-
-            // Unwrap boxing conversions (e.g., value-type member to object) so we can
-            // reliably detect the underlying MemberExpression.
-            var body = (Expression)GroupBy.Body;
-            if (body is UnaryExpression unary &&
-                (unary.NodeType == ExpressionType.Convert || unary.NodeType == ExpressionType.ConvertChecked))
+            InitializeGroupBy();
+        }
+        else if (GroupBy != null && !ReferenceEquals(GroupBy, _lastGroupBy))
+        {
+            // Expression instances are recreated on every parent render, so compare
+            // the string representation to detect actual logical changes.
+            if (GroupBy.ToString() != _lastGroupBy?.ToString())
             {
-                body = unary.Operand;
-            }
-
-            if (body is MemberExpression member)
-            {
-                _groupByColumnId = member.Member.Name.ToLowerInvariant();
-                _groupByColumnTitle = member.Member.Name;
+                InitializeGroupBy();
             }
             else
             {
-                _groupByColumnId = "group";
-                _groupByColumnTitle = "Group";
+                _lastGroupBy = GroupBy;
             }
-
-            _groupsCollapsedByDefault = GroupsCollapsedByDefault;
-            _lastGroupBy = GroupBy;
-
-            _gridState.Grouping.SetGroup(new GroupDefinition
-            {
-                ColumnId = _groupByColumnId,
-                GroupSortDirection = SortDirection.Ascending
-            });
-
-            _needsDataRefresh = true;
         }
         else if (GroupBy == null && _groupByAccessor != null && _groupColumnHeaderTemplate == null)
         {
@@ -642,6 +623,43 @@ public partial class BbDataGrid<TData> : ComponentBase, IAsyncDisposable where T
         result.AddRange(unpinned);
         result.AddRange(rightPinned);
         return result;
+    }
+
+    private void InitializeGroupBy()
+    {
+        var compiled = GroupBy!.Compile();
+        _groupByAccessor = item => compiled(item);
+
+        // Unwrap boxing conversions (e.g., value-type member to object) so we can
+        // reliably detect the underlying MemberExpression.
+        var body = (Expression)GroupBy.Body;
+        if (body is UnaryExpression unary &&
+            (unary.NodeType == ExpressionType.Convert || unary.NodeType == ExpressionType.ConvertChecked))
+        {
+            body = unary.Operand;
+        }
+
+        if (body is MemberExpression member)
+        {
+            _groupByColumnId = member.Member.Name.ToLowerInvariant();
+            _groupByColumnTitle = member.Member.Name;
+        }
+        else
+        {
+            _groupByColumnId = "group";
+            _groupByColumnTitle = "Group";
+        }
+
+        _groupsCollapsedByDefault = GroupsCollapsedByDefault;
+        _lastGroupBy = GroupBy;
+
+        _gridState.Grouping.SetGroup(new GroupDefinition
+        {
+            ColumnId = _groupByColumnId,
+            GroupSortDirection = SortDirection.Ascending
+        });
+
+        _needsDataRefresh = true;
     }
 
     private void InitializeColumnState()
