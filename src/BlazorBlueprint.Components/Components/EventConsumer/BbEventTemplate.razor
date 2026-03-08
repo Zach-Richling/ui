@@ -1,0 +1,114 @@
+@namespace BlazorBlueprint.Components
+
+@using System.Text.Json
+
+@typeparam TValue
+@implements IDisposable
+
+@if (currentValue is not null && ChildContent != null)
+{
+    if (EffectiveRenderMode == EventRenderMode.Accumulate)
+    {
+        @foreach (var item in values)
+        {
+            @ChildContent(item.Value)
+        }
+    }
+    else
+    {
+        @ChildContent(currentValue)
+    }
+}
+
+@code {
+    private TValue? currentValue;
+    private bool disposed;
+    private readonly Dictionary<string, TValue> values = new();
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    private EventRenderMode EffectiveRenderMode => RenderMode ?? Context.RenderMode;
+
+    /// <summary>
+    /// The SSE event type name to listen for.
+    /// Must match the <c>event:</c> field sent by the server.
+    /// </summary>
+    /// <remarks>
+    /// Do not use the event name of 'message' as this is reserved for the default message event and will not trigger this template.
+    /// </remarks>
+
+    [Parameter, EditorRequired]
+    public string Event { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Template that receives the deserialized <typeparamref name="TValue"/>
+    /// each time an event of the matching type arrives.
+    /// </summary>
+    [Parameter]
+    public RenderFragment<TValue>? ChildContent { get; set; }
+
+    /// <summary>
+    /// Controls whether this template renders only the latest event
+    /// (<see cref="EventRenderMode.Latest"/>) or accumulates all events
+    /// (<see cref="EventRenderMode.Accumulate"/>).
+    /// This overwrites <see cref="BbEventConsumer.RenderMode"/> for this template.
+    /// </summary>
+    [Parameter]
+    public EventRenderMode? RenderMode { get; set; }
+
+    [CascadingParameter]
+    private EventConsumerContext Context { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        if (Context == null)
+        {
+            throw new InvalidOperationException(
+                "BbEventTemplate must be used within a BbEventConsumer component.");
+        }
+
+        Context.RegisterHandler(Event, HandleEvent);
+    }
+
+    private void HandleEvent(string eventId, string jsonData)
+    {
+        if (disposed) { return; }
+
+        try
+        {
+            var value = JsonSerializer.Deserialize<TValue>(jsonData, JsonOptions);
+
+            if (value is null)
+            {
+                return;
+            }
+
+            if (EffectiveRenderMode == EventRenderMode.Accumulate)
+            {
+                if (!values.Keys.Contains(eventId))
+                {
+                    values.Add(eventId, value);
+                }
+            }
+
+            currentValue = value;
+
+            InvokeAsync(StateHasChanged);
+        }
+        catch (JsonException)
+        {
+            //Inform user of bad payload?
+        }
+    }
+
+    public void Dispose()
+    {
+        disposed = true;
+        Context?.UnregisterHandler(Event);
+    }
+
+    private record ServerSentEvent<T>(string Id, T Value);
+}

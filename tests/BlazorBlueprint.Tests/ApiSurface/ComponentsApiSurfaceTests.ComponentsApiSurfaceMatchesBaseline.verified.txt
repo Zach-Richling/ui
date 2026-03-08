@@ -1107,6 +1107,21 @@
   - Size : EmptySize
   - Title : String
 
+### BbEventConsumer (BlazorBlueprint.Components)
+  - AutoConnect : Boolean
+  - ChildContent : RenderFragment
+  - OnConnectionStateChanged : EventCallback<EventSourceState>
+  - OnMessage : EventCallback<String>
+  - OnOpen : EventCallback
+  - RenderMode : EventRenderMode?
+  - Url : String [EditorRequired]
+
+### BbEventTemplate`1 (BlazorBlueprint.Components)
+  - ChildContent : RenderFragment<TValue>
+  - Event : String [EditorRequired]
+  - RenderMode : EventRenderMode?
+  - Context : EventConsumerContext [CascadingParameter]
+
 ### BbField (BlazorBlueprint.Components)
   - AdditionalAttributes : Dictionary<String, Object> [CaptureUnmatchedValues]
   - ChildContent : RenderFragment
@@ -3168,6 +3183,17 @@
   - Small = 0
   - Default = 1
   - Large = 2
+
+### EventRenderMode (BlazorBlueprint.Components)
+  - Latest = 0
+  - Accumulate = 1
+
+### EventSourceState (BlazorBlueprint.Components)
+  - Disconnected = 0
+  - Connecting = 1
+  - Open = 2
+  - Reconnecting = 3
+  - Closed = 4
 
 ### FieldGroupOrientation (BlazorBlueprint.Components)
   - Vertical = 0

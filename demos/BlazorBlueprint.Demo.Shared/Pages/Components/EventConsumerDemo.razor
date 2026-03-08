@@ -1,0 +1,115 @@
+@page "/components/event-consumer"
+<PageTitle>Event Consumer Component - Blazor Blueprint</PageTitle>
+
+<div class="space-y-8 max-w-4xl">
+    <div>
+        <div class="space-y-3">
+            <h1 class="text-4xl font-bold tracking-tight">Event Consumer Component</h1>
+            <p class="text-xl text-muted-foreground">
+                Consumes Server-Sent Events (SSE) from a URL and dispatches typed events to child templates.
+            </p>
+        </div>
+    </div>
+
+    <!-- Setup -->
+    <div class="space-y-4">
+        <h2 class="text-2xl font-semibold">Setup</h2>
+        <p class="text-sm text-muted-foreground">
+            Use <code class="text-xs bg-muted px-1 py-0.5 rounded">BbEventConsumer</code> with a URL that serves SSE.
+            Add <code class="text-xs bg-muted px-1 py-0.5 rounded">BbEventTemplate&lt;TValue&gt;</code> children for each event type you want to handle.
+            When running the <strong>Server</strong> demo, the endpoint below is available at <code class="text-xs bg-muted px-1 py-0.5 rounded">/sse</code>.
+        </p>
+    </div>
+
+    <!-- Usage -->
+    <div class="space-y-4">
+        <h2 class="text-2xl font-semibold">Usage</h2>
+        <p class="text-sm text-muted-foreground">
+            <code class="text-xs bg-muted px-1 py-0.5 rounded">BbEventConsumer</code> exposes <code class="text-xs bg-muted px-1 py-0.5 rounded">OnOpen</code> and <code class="text-xs bg-muted px-1 py-0.5 rounded">OnConnectionStateChanged</code>.
+            Use <code class="text-xs bg-muted px-1 py-0.5 rounded">RenderMode</code> on the consumer or each template: <code class="text-xs bg-muted px-1 py-0.5 rounded">EventRenderMode.Latest</code> (single value) or <code class="text-xs bg-muted px-1 py-0.5 rounded">EventRenderMode.Accumulate</code> (list of all events).
+        </p>
+        <CodeBlock Source="Components/EventConsumer/basic.txt" />
+    </div>
+
+    <!-- Live demo -->
+    <div class="space-y-4">
+        <h2 class="text-2xl font-semibold">Live Demo</h2>
+        <p class="text-sm text-muted-foreground">
+            Connect to the SSE endpoint and receive <code class="text-xs bg-muted px-1 py-0.5 rounded">tick</code> and <code class="text-xs bg-muted px-1 py-0.5 rounded">my-message</code> events.
+        </p>
+
+        <div class="space-y-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <label for="sse-url" class="text-sm font-medium">SSE URL</label>
+                <input id="sse-url"
+                       type="text"
+                       class="flex h-9 w-full max-w-md rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                       placeholder="/sse"
+                       @bind="sseUrl" />
+                <span class="text-sm text-muted-foreground">Connection: @connectionState.ToString()</span>
+                @if (connectionState == EventSourceState.Disconnected || connectionState == EventSourceState.Closed)
+                {
+                    <BbButton Variant="ButtonVariant.Default" OnClick="Connect" Class="ml-auto">Connect</BbButton>
+                }
+                else
+                {
+                    <BbButton Variant="ButtonVariant.Secondary" OnClick="Disconnect" Class="ml-auto">Disconnect</BbButton>
+                }
+            </div>
+            <div class="border rounded-lg p-4 space-y-4 bg-muted/30">
+                @if (!string.IsNullOrWhiteSpace(sseUrl))
+                {
+                    <BbEventConsumer @ref="consumerRef"
+                                    Url="@(sseUrl.Trim())"
+                                    OnConnectionStateChanged="state => connectionState = state">
+                        <BbEventTemplate TValue="TickEvent" Event="tick" RenderMode="EventRenderMode.Latest">
+                            <div class="text-sm">
+                                <strong>Latest tick:</strong> @context.Timestamp
+                            </div>
+                        </BbEventTemplate>
+                        <BbEventTemplate TValue="MessageEvent" Event="my-message" RenderMode="EventRenderMode.Accumulate">
+                            <div class="text-sm border-l-2 border-primary pl-2 py-1">
+                                @context.Text
+                            </div>
+                        </BbEventTemplate>
+                    </BbEventConsumer>
+                }
+                else
+                {
+                    <p class="text-sm text-muted-foreground">Enter an SSE URL above (e.g. /sse when running the Server demo).</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private BbEventConsumer? consumerRef;
+    private EventSourceState connectionState = EventSourceState.Disconnected;
+    private string sseUrl = "/sse";
+
+    private async Task Connect()
+    {
+        if (consumerRef is not null)
+        {
+            await consumerRef.ConnectAsync();
+        }
+    }
+    private async Task Disconnect()
+    {
+        if (consumerRef is not null)
+        {
+            await consumerRef.DisconnectAsync();
+        }
+    }
+
+    private sealed class TickEvent
+    {
+        public string? Timestamp { get; set; }
+    }
+
+    private sealed class MessageEvent
+    {
+        public string? Text { get; set; }
+    }
+}

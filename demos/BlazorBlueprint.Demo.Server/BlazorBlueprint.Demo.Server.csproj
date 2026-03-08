@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Net.ServerSentEvents" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BlazorBlueprint.Demo.Shared\BlazorBlueprint.Demo.Shared.csproj" />
   </ItemGroup>
 

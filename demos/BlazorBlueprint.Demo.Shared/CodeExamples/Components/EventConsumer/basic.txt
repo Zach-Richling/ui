@@ -1,0 +1,8 @@
+<BbEventConsumer Url="/api/events">
+    <BbEventTemplate TValue="ChatMessage" Event="chat-message">
+        <div>@context.User: @context.Text</div>
+    </BbEventTemplate>
+    <BbEventTemplate TValue="StatusUpdate" Event="status-update" RenderMode="EventRenderMode.Accumulate">
+        <span class="badge">@context.Level: @context.Message</span>
+    </BbEventTemplate>
+</BbEventConsumer>
