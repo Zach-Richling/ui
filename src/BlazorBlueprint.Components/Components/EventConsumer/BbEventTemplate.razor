@@ -1,29 +1,45 @@
 @namespace BlazorBlueprint.Components
 
 @using System.Text.Json
+@using Microsoft.AspNetCore.Components.Web.Virtualization
 
 @typeparam TValue
 @implements IDisposable
 
-@if (currentValue is not null && ChildContent != null)
+@if (ChildContent is not null)
 {
     if (EffectiveRenderMode == EventRenderMode.Accumulate)
     {
-        @foreach (var item in values)
+        if (Virtualize)
         {
-            @ChildContent(item.Value)
+            <Virtualize Items="values" Context="item">
+                @ChildContent(item)
+            </Virtualize>
+        }
+        else
+        {
+            @foreach (var item in values)
+            {
+                @ChildContent(item)
+            }
         }
     }
     else
     {
-        @ChildContent(currentValue)
+        if (currentValue is not null)
+        {
+            @ChildContent(currentValue)
+        }
     }
 }
 
 @code {
     private TValue? currentValue;
     private bool disposed;
-    private readonly Dictionary<string, TValue> values = new();
+    private bool renderPending;
+
+    private readonly HashSet<string> eventIds = new();
+    private readonly List<TValue> values = new();
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -59,6 +75,23 @@
     [Parameter]
     public EventRenderMode? RenderMode { get; set; }
 
+    /// <summary>
+    /// EventCallback that is invoked whenever the component
+    /// renders a batch of events
+    /// </summary>
+    [Parameter]
+    public EventCallback<TValue> OnRender { get; set; }
+
+    /// <summary>
+    /// Option to virtualize the accumulated list of events.
+    /// This will improve rendering performance for large lists.
+    /// </summary>
+    /// <remarks>
+    /// This will only work with <see cref="EventRenderMode.Accumulate"/>
+    /// </remarks>
+    [Parameter]
+    public bool Virtualize { get; set; } = false;
+
     [CascadingParameter]
     private EventConsumerContext Context { get; set; } = null!;
 
@@ -88,20 +121,49 @@
 
             if (EffectiveRenderMode == EventRenderMode.Accumulate)
             {
-                if (!values.Keys.Contains(eventId))
+                if (!eventIds.Contains(eventId))
                 {
-                    values.Add(eventId, value);
+                    eventIds.Add(eventId);
+                    values.Add(value);
+
+                    ScheduleRender();
                 }
             }
-
-            currentValue = value;
-
-            InvokeAsync(StateHasChanged);
+            else
+            {
+                currentValue = value;
+                ScheduleRender();
+            }
         }
         catch (JsonException)
         {
             //Inform user of bad payload?
         }
+    }
+
+    private void ScheduleRender()
+    {
+        if (renderPending || disposed)
+        {
+            return;
+        }
+
+        renderPending = true;
+
+        _ = InvokeAsync(async () =>
+        {
+            await Task.Delay(1000);
+
+            renderPending = false;
+            if (!disposed)
+            {
+                StateHasChanged();
+                if (OnRender.HasDelegate)
+                {
+                    await OnRender.InvokeAsync();
+                }
+            }
+        });
     }
 
     public void Dispose()

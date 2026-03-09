@@ -1119,7 +1119,9 @@
 ### BbEventTemplate`1 (BlazorBlueprint.Components)
   - ChildContent : RenderFragment<TValue>
   - Event : String [EditorRequired]
+  - OnRender : EventCallback<TValue>
   - RenderMode : EventRenderMode?
+  - Virtualize : Boolean
   - Context : EventConsumerContext [CascadingParameter]
 
 ### BbField (BlazorBlueprint.Components)
